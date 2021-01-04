@@ -41,6 +41,30 @@ git workflow
  then push files from local repository to remote repository
 
 =========================
-working Diagram
+Git Commands
 =========================
+  git init				(to initiate the git locally)
+  git add file-name			(to add files from working area to staging area by giving file name)
+  git add *				(to add all files and folders from working area to staging area)
+  git add .				(stages new files and modifications, without deletions)
+  git add -a 				(stages all changes)
+  git add -u				(stages modifications and deletions, without new files)
+  git add css				(stages entire directory)
+  git commit -m "commit message"	(create local repository from stagging with commit message. -m for committing a message)
+  git status				(to check the status)
+  git config 				(for configureing )
+  git config --global user.name "github user name" 	( to cinfigure git hub to your local system)
+  git config --global user.mail "github mail id"	(to configure git hub mail id locally)
+  git remote -v				(to check the remote repository details)
+  git remote add origin "remote repository url"		(to add remote repository locally)
+  git fetch				(The fetch command retrieves any commits, references (like tags), branches and files from a remote repository, along with any other corresponding .)
+  git pull				(it pulls all the files and repositories from remote to local working area)
+  git push origin master		(to push local commits to remote repo)
+  git rm file name			(to remove the file)
+  git --unstage				(to unstage the previos stage)
+  git merge				(it merge the feature branch to master branch)
+  git rebase				(it merge the all feature branches to master branch)
+  git checkout				(to checkout one branch to another branch)
+
+
 
