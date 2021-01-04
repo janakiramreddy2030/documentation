@@ -1,1 +1,46 @@
-under process
+=========================
+git
+=========================
+
+  git is scm ( source code management) tool
+  
+
+=========================
+History of Git
+=========================
+1. Git is relaesed on 7/04/2005
+2. A command-line session showing repository creation, addition of a file, and remote synchronization
+3. before git we have used CVS ( concurrent vesion system)
+4.You have almost certainly heard Git described as a “distributed” version control system before. ... CVS, short for Concurrent Versions System,
+  was the very first second-generation version control system. 
+  It was also the most popular version control system for about a decade until it was replaced in 2000 by Subversion.
+
+
+=========================
+git stages
+=========================
+
+--> working area --> staging area --> local repository --> remote repository
+
+
+=========================
+git workflow
+=========================
+  develpers will develop their projects locally and they keep up in a safe file   which is call "working area"
+					|
+					|
+					v
+  Then we have to add the files to staging area by commanding " git add file-name"
+					|
+					|
+					v
+  then we have to commit the files from staging area to local repository with commit message
+					|
+					|
+					v
+ then push files from local repository to remote repository
+
+=========================
+working Diagram
+=========================
+
