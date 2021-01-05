@@ -261,3 +261,224 @@ node {
 
 
 ==========================================================================
+PUBLISH CODE TO SONARQUBE
+==========================================================================
+
+--> SonarQube is an open-source platform developed by SonarSource for continuous inspection of code quality to perform automatic reviews with static 
+    analysis of code to detect bugs, code smells, and security vulnerabilities on 20+ programming languages.
+
+
+--> Jenkins --> manage jenkins --> manage plugins --> search for sonarqube scanner under available plugins --> click install without restart
+--> back to jenkins home --> manage jenkins--> configure system --> check for sonar qube server details --> add sonarqube instance details --> 
+--> login to sonar qube server --> when we login to sonar qube first time we need to generate token first --> give name(any name) --> save -->continue 
+    --> java --> maven -->its giving a commnad using which we can publish source code to sonarqube--> copy the token and paste it on under server authentication
+    token in jenkins machine.
+    -->server url " is out sonar qube ip:prot number" --> name " as our own" --> save 
+
+
+
+# Jenkinsfile
+
+node {
+	stage('SCM Checkout'){
+             git 'url'
+	}
+	stage('Compile-Package'){
+	     //get maven home path
+             def mvnHome=tool name: 'maven' , type: 'maven'
+             sh "${mvnHome}/bin/mvn package"
+	}
+	stage('SonarQube Analysis'){
+	     def mvnHome=tool name: 'maven' , type: 'maven'
+	     withSonarQubeEnv('name we given that time of sonar configuration'){
+	     sh "${mvnHome}/bin/mvn sonar:sonar"
+	    }
+	}
+	stage('Email Notification'){
+	    mail bcc: '', body: ' "hi welcome to pipeline job declaration" ', cc: '', from: '', replyTo: '', subject: 'jenkins job', to: 'your mail id'
+	}
+	stage('stack-notofication'){
+ 	    slackSend baseUrl: 'url of base ', channel: 'channel name',
+            color: 'good', message: 'message we given', teamDomain: 'domain  name', tokenCredentialId: 'slack-demo'
+	}
+	    	
+}
+
+--> lets commit the file and build the project or job.
+
+===============================================================================
+jenkins mark build as failed, if SonarQube quality checks not met
+===============================================================================
+
+
+
+# sonar-status-check
+
+node {
+	stage('SCM Checkout'){
+             git 'url'
+	}
+	stage('Compile-Package'){
+	     //get maven home path
+             def mvnHome=tool name: 'maven' , type: 'maven'
+             sh "${mvnHome}/bin/mvn package"
+	}
+	stage('SonarQube Analysis'){
+	     def mvnHome=tool name: 'maven' , type: 'maven'
+	     withSonarQubeEnv('name we given that time of sonar configuration'){
+	     sh "${mvnHome}/bin/mvn sonar:sonar"
+	    }
+	}
+	stage('Quality gate status check'){
+	     timeout(time: 1, unit: 'HOURS'){
+	      def qg = waitForQualityGate()
+	      if (qg.status != 'OK'){
+	 	slackSend baseUrl: 'url of base ', channel: 'channel name',
+            	color: 'danger', message: 'Sonarqube analysis failed', teamDomain: 'domain  name', tokenCredentialId: 'slack-demo'
+	      error "Pipeline aborted due to quality gate failure: ${qg.status}
+		}
+		}
+	}
+	stage('Email Notification'){
+	    mail bcc: '', body: ' "hi welcome to pipeline job declaration" ', cc: '', from: '', replyTo: '', subject: 'jenkins job', to: 'your mail id'
+	}
+	stage('stack-notofication'){
+ 	    slackSend baseUrl: 'url of base ', channel: 'channel name',
+            color: 'good', message: 'message we given', teamDomain: 'domain  name', tokenCredentialId: 'slack-demo'
+	}
+	    	
+}
+
+
+--> save --> jneins machine --> project --> configure --> pipeline --> script path --> sonar-status-check
+--> save the file build now
+--> it wil got blocked because we have not wehooked the sonar qube 
+	--> go to sonarqube server -->administration -->webhooks --> give name --> url " http://jenkinsserver ip:port/sonarqube-webhook/" --> save 
+--> come back jenkins machine lets build it again.
+
+============================================================================================
+PRODUCTION GRADE CI/CD SETUP | JENKINS DEPLOY WAR TO TOMCAT | PRODUCTION READY JENKINS CI CD
+============================================================================================
+
+--> jenkins machine --> manage jenkins --> manage plugins --> search "ssh agent" under available plugins --> install without restart
+--> jenkins home --> pipeline syntax --> search for ssh agent --> 
+--> get back to jenkins home page --> credentials --> choose jenkins--> global credentials --> add credentials -->go with ssh agent 
+--> user name "ec2-user"-->private key --> copy and paste private .pem key --> give meaingful id --> give description --> 
+
+# sonar-status-check
+
+node {
+	stage('SCM Checkout'){
+             git 'url'
+	}
+
+	stage('Compile-Package'){
+	     //get maven home path
+             def mvnHome=tool name: 'maven' , type: 'maven'
+             sh "${mvnHome}/bin/mvn package"
+	}
+
+	stage('SonarQube Analysis'){
+	     def mvnHome=tool name: 'maven' , type: 'maven'
+	     withSonarQubeEnv('name we given that time of sonar configuration'){
+	     sh "${mvnHome}/bin/mvn sonar:sonar"
+	    }
+	}
+
+	stage('Quality gate status check'){
+	     timeout(time: 1, unit: 'HOURS'){
+	      def qg = waitForQualityGate()
+	      if (qg.status != 'OK'){
+	 	slackSend baseUrl: 'url of base ', channel: 'channel name',
+            	color: 'danger', message: 'Sonarqube analysis failed', teamDomain: 'domain  name', tokenCredentialId: 'slack-demo'
+	      error "Pipeline aborted due to quality gate failure: ${qg.status}
+		}
+		}
+	}
+
+	stage('Deploy to tomcat'){
+	      sshagent(['tomcat-dev']){
+	         sh 'scp -o StrictHostKeyChecking-on target/*.war ec2-user@tomcatserverip:/opt/tomcat/webapps/'
+		}
+	}
+
+	stage('Email Notification'){
+	    mail bcc: '', body: ' "hi welcome to pipeline job declaration" ', cc: '', from: '', replyTo: '', subject: 'jenkins job', to: 'your mail id'
+	}
+
+	stage('stack-notofication'){
+ 	    slackSend baseUrl: 'url of base ', channel: 'channel name',
+            color: 'good', message: 'message we given', teamDomain: 'domain  name', tokenCredentialId: 'slack-demo'
+	}
+	    	
+}
+
+--> save and build 
+
+========================================================================================
+Jenkins Pipeline script parameterized builds
+========================================================================================
+--> pipeline syntax--> check project is perameterized --> choose the one you r seaching for ( choice perameter here) --> name --> multiple choices( master future-1
+    future-2) --> description- select branch to build --> generate the pipeline script
+
+
+# sonar-status-check
+
+properties([parameters([choice(choices: 'master\nfeature-1\nfeature-2', description: 'select branch to build')])])
+node {
+	stage('SCM Checkout'){
+             echo "Pulling changes from the branch" ${params.branch(perametername that we have defined)}"
+	      git url: 'url', branch:"${params.branch}"	
+	}
+
+	stage('Compile-Package'){
+	     //get maven home path
+             def mvnHome=tool name: 'maven' , type: 'maven'
+             sh "${mvnHome}/bin/mvn package"
+	}
+
+	stage('SonarQube Analysis'){
+	     def mvnHome=tool name: 'maven' , type: 'maven'
+	     withSonarQubeEnv('name we given that time of sonar configuration'){
+	     sh "${mvnHome}/bin/mvn sonar:sonar"
+	    }
+	}
+
+	stage('Quality gate status check'){
+	     timeout(time: 1, unit: 'HOURS'){
+	      def qg = waitForQualityGate()
+	      if (qg.status != 'OK'){
+	 	slackSend baseUrl: 'url of base ', channel: 'channel name',
+            	color: 'danger', message: 'Sonarqube analysis failed', teamDomain: 'domain  name', tokenCredentialId: 'slack-demo'
+	      error "Pipeline aborted due to quality gate failure: ${qg.status}
+		}
+		}
+	}
+
+	stage('Deploy to tomcat'){
+	      sshagent(['tomcat-dev']){
+	         sh 'scp -o StrictHostKeyChecking-on target/*.war ec2-user@tomcatserverip:/opt/tomcat/webapps/'
+		}
+	}
+
+	stage('Email Notification'){
+	    mail bcc: '', body: ' "hi welcome to pipeline job declaration" ', cc: '', from: '', replyTo: '', subject: 'jenkins job', to: 'your mail id'
+	}
+
+	stage('stack-notofication'){
+ 	    slackSend baseUrl: 'url of base ', channel: 'channel name',
+            color: 'good', message: 'message we given', teamDomain: 'domain  name', tokenCredentialId: 'slack-demo'
+	}
+	    	
+}
+
+
+============================================================================================
+Github webhook | integrating Jenkins with Github | trigger Jenkins Jobs using Github webhooks
+============================================================================================
+
+select the job --> under build triggers --> check github  hook trigger for GITscm polling--> save the job
+--> goto github repository --> settings --> under webhooks --> add webhook --> put payload url " that jenkins machine http://ip:port number/github-webhook/" -->
+    content type " application/json"  --> add webhook --> 
+--> if any commits from github its send a notification to jenkins , the jenkins machine auto triggers the notification and build it automatically.
+

@@ -108,3 +108,17 @@ install Java-1.8.0 version
 --> mvn package                           ( by checking the mvn is working or nor  or we can pass mvn --version)
 
 
+============================================================================
+MAVEN AFTER BUILD 
+============================================================================
+
+--> TARGET FOLDER ---> ONCE WE BUILD FROM MAVEN, JAR OR WAR ARTIFACTS ARE CREATED  ( JAR OR WAR ARTIFACTS WHICH IS DEPLOYABLE FILES ANYWHERE)
+--> THE JAR OR WAR FILES ARE STORED IN THE " TARGET  FOLDER" ON WHICH FOLDER WE ARE  BUILDING THE SAME FOLDER ONCE BUILD SUCCESS TARGET FOLDER WILL BE CREATED.
+--> IF WE ARE BUILD THE FILES REMOTELY BY NEXUS, THE JAR OR WAR FILES SNAPSHOTS ARE STORED IN THE NEXUS REPOSITORY.
+
+
+--> TO RUN THE JAR OR WAR FILE IF IT IS WORKING CORRECTLY WITH THE BELOW COMMAND
+
+-----------> java -cp target/my-app-1.0-SNAPSHOT.jar com.mycompany.app.App
+  
+
