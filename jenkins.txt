@@ -1,0 +1,263 @@
+============================
+Jenkins
+===========================
+  jenkins is popular automation tool for CI/CD
+  similat tools:-
+	- Bamboo
+	- Circle CI
+	- Solano CI
+	- Team City
+  Using jenkins we can automate any task
+  Jenkins is open source
+  Jenkins is written in java
+  Jenkins is collection of plugins
+
+=========================================================================
+INSTALL MAVEN & GIT 
+=========================================================================
+STEP-1
+cd /opt
+sudo wget http://www-us.apache.org/dist/maven/maven-3/3.5.3/binaries/apache-maven-3.5.3-bin.zip
+
+STEP-2
+--> unzip the file 
+--> change the name and remove the zip file
+cd /opt/maven/bin
+
+STEP-3
+# add the following content into ~/.bashrc
+
+vi ~/.bashrc
+
+
+export PATH=/opt/maven/bin:$PATH
+ 
+	or
+
+export M2_HOME=/home/ec2-user/maven
+export M2=$M2:$PATH
+export PATH=$M2:$PATH
+
+STEP-4
+source ~/.bashrc
+
+
+STEP-5
+# verify the installtion
+mvn --version
+======================================
+git
+======================================
+--> git --version
+--> sudo yum install git
+--> git --version
+
+=========================================================================
+Installation & configuration of Jenkins
+=========================================================================
+1. Connect to Virtual Machine- Amazon EC2 instance
+2. go to goole--> jenkins Download --> going with long term support select Centos / Redhat --> follow the instructions
+   Note: Jenkins required java-1.8.0 and above version
+--> java -version			(to check java version)
+--> sudo yum list |grep java-1.8.0
+--> sudo yum install java-1.8.0-openjdk-devel.x86_64
+--> sudo update-alternatives --congif java
+--> java -version			(check java version if it pointing to java-1.8.0 version)
+==========================================================================
+
+--> sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
+--> sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+--> sudo yum install jenkins
+--> sudo service jenkins start		(to start the jenkins server)     or
+--> sudo systemctl start jenkins.service
+--> sudo service jenkins status		(to check the status of jenkins wether it is running or not)  or
+--> sudo systemctl status jenkins.service
+--> sudo chkconfig jenkins on		(to auto start the jenkins once server reboot or restart)
+-->
+-->
+-->
+    By defalut Jenkis access from the 8080 port, 
+    Goto crome browser --> paste the Public IP address of our ec2 server following with the ":8080" port number like " 10.0.0.0:8080"
+    we are done with the installtion next step is unlocking the jenkins
+    to unlock jenkins we have to grab the jnekins password form the initial admin password
+--> cat /var/lib/jenkins/secrets/initialAdminPassword	(cat cmd is used to retrive or view the data)(if permission denied pls use sudo infront of cat)
+    Password works only one time after words we  have to create our own login details. copy the password from the path and paste on it)
+--> once done with password we must customize jenkins . we have options 1. install suggessted plugins 2. select plugins to install
+--> recomended to choose install suggested plugins
+--> once installed all the plugins we'll get the create admin user page, here we'll create first admin user.
+--> Recommanded not to go with continue as admin--> choose save and finish
+--> if we go for continue as admin the user name and password will not create for you.
+--> now jenkins is ready, we can start using jenkins.
+
+===========================================================================
+CONTINUES INTEGRATION PROCESS
+===========================================================================
+
+
+
+	DEVELOPER-------------> SCM(like GIT)-------> AUTOMATED VERIFICATION PROCESS ------->	1. COMPILE THE CODE
+												2. TEST THE CODE
+												3. STATIC CODE ANALYSIS
+												4. SOFTWARE PACKAGE
+												5. ERROR	(if any error send the sms or main by using sns 
+														 service to developer)
+
+--} Benifits of COntinues Integration
+  --> fast feedback to the developers
+  --> easy for the developers to find and fix issues
+  --> improves developers productivity
+  --> improves code quality, minimize defects
+  --> its automates integration flow
+
+===========================================================================
+CONTINUES DELIVERY & BENIFITS
+===========================================================================
+   --> AUTOMATE SOFTWARE RELEASE PROCESS
+   --> RELEASE SOFTWARE UPDATES FASTER
+   --> IMPROVES DEVELOPERS PRODUCTIVITY
+   --> ENABLE DEVELOPERS TO FIND AND FIX BUGS QUICKER
+   
+
+===========================================================================
+CONTINUES DEPLOYMENT VS CONTINUES DELIVERY
+===========================================================================
+  --> CONTINUES DEPLOYMENT IS COMPLETLY AUTOMATED PROCESS RIGHT FROM SOURCE CODE CHECKING TILL DEPLOYMENT PRODUCTION
+  --> CONTINUES DELIVEY IS ALSO AN AUTOMATED PROCESS EXCEPT DEPLOYING THE APPLICATION TO PRODUCTION BASED ON APPROVAL
+
+
+
+===========================================================================
+JENKINS FREESTYLE PROJECT , USING MAVEN & GIT
+=========================================================================== 
+--> create a new job (or project) --> enter name of the job --> choose free style project --> choose ok
+--> get the java project form the scm(git) with maven(pom.xml) --> unser source code management choose git --> paste the git repository url (if private repository 
+    pass the credentials --> select the branch --> then goto build--> go with invoke top level maven targets --> under goals clear package -->save the configuration part
+    part--> lets build the project.
+--> the job got fail because mvn package path not declared --> goto manage jenkins --> choose global tool configuration --> go with maven installation -->
+    add maven --> specify a name --> uncheck the install automatically option --> specilfy the path of maven  " /opt/maven " --> lets save
+--> come back to job lets configure the job --> under build  we can select the maven version the one which we have congfigured in the global tool configuration
+    --> choose that we have configured one and save.
+--> lets build it again 
+--> jenkins job created successfully and its build the packages for us.
+
+============================================================================
+JENKINS PIPELINE INTEGRATION WITH GIT & MAVEN
+============================================================================
+--> Lets create a new job --> name the job --> choose the pipeline --> ok --> select pipeline option --> if we select pipeline script we can directly write a
+    the script in the text field , the other option is  pipeline script from scm. here we can choose the options available for the scm ( git )--> choose git
+--> and past the git url, and the brach and under the pipeline file by default it is Jenkinsfile. in Jenkinsfile we are writing the entire script, and these
+    file we can kept anywhere in the declared scm path.
+--> go to git --> choose or create a new file --> lets name it as "Jenkinsfile" (here J is caps ) --> lets write Jenkins pipeline 
+
+#here we wanna put cuple of stages here,
+
+# Jenkinsfile
+
+node {
+	stage('SCM Checkout'){
+	   git 'url'
+	}
+	stage('Compile-Package'){
+	   sh 'mvn package'
+	}
+}
+
+--> lets save the file
+--> this Jenkinsfile we used to checkout the git and build the java project 
+--> lets build the job
+--> the job got fail because its checking the path of the mvn , so we have to configure the job with pipeline script
+--> go to jenkins --> job configuration --> choose pipeline--> below choose "pipeline syntax" generator --> using the pipeline syntax generator we can easily get the
+    syntaxs by passing some inputs.
+--> under steps --> choose tools: use a tool from a predefined tool installation --> choose toll type " maven" --> tool "already we configured maven tool"
+    --> choose "generate pipeline script"--> copy the script and comeback to git edit the Jenkinsfile
+-->
+
+# Jenkinsfile
+
+node {
+	stage('SCM Checkout'){
+             git 'url'
+	}
+	stage('Compile-Package'){
+	     //get maven home path
+             def mvnHome=tool name: 'maven' , type: 'maven'
+             sh "${mvnHome}/bin/mvn package"
+	}
+	
+}    
+
+--> let save and build the project
+--> finally the job got success
+
+=====================================================================
+jenkins pipeline intefration with email notification
+=====================================================================
+--> by getting smtp server details from the google we can email the notifications 
+--> goto google --> type gmail smtp settings --> 
+--> goto jenkins --> click manage jenkins --> select configure system --> scrool down  we have "E-mail Notifications" --> grab smtp server host and paste it
+    --> smtp.gmail.com --> click advanced --> select use smtp authentication --> user name as email id --> password pf your email id --> check the use ssl
+    --> smtp port  " 465 " -->  check test configuration by sending test email--> test email receipt by passing your mail id--> test configuration--> the email
+	sent successfully and you can check your inbox --> then save 
+--> goto job configuration--> under pipeline --> pipeline syntax --> goto generator --> select email  --> supply the details to, cc, bcc , subject , body of the mail
+    --> generate pipeline script.
+
+
+# Jenkinsfile
+
+node {
+	stage('SCM Checkout'){
+             git 'url'
+	}
+	stage('Compile-Package'){
+	     //get maven home path
+             def mvnHome=tool name: 'maven' , type: 'maven'
+             sh "${mvnHome}/bin/mvn package"
+	}
+	stage('Email Notification'){
+	    mail bcc: '', body: ' "hi welcome to pipeline job declaration" ', cc: '', from: '', replyTo: '', subject: 'jenkins job', to: 'your mail id'
+	}
+	
+} 
+--> lets save the file 
+--> lets build the job
+
+======================================================================
+SLACK NOTIFICATIONS
+======================================================================
+--> First we need to install slack plugin
+--> go manage jenkins--> manage pulgins --> select availabel--> search for slack --> choose install without restart--> once installed successfully goto pipeline syntax
+--> search for the send slack notification--> message --> any colour --> click advanced --> channel==>
+    --> goto goole --> slack channel --> create a slack channel --> create a channel --> channel is kind of a group using which we can communicate with multiple users
+    --> lets name the channel--> fill the details if required or leave it as optional -->  lets create channel
+    --> once channel is created from our jenkins we need to sent slack notificatios to this channel --> by getting certain information  click "+add an app" 
+    --> from the search field search for webhook--> using incoming webhooks we can sent data into slack in real time--> click an edit symbol--> scroll down
+    --> webhook url --> in the webhook url after services/ authentication token we can find
+--> come back to configuration --> under channel -channel name--> integration token- "add"--> kind is secret text --> secret -paste " integration token"-->id "any 
+    reasonable name" --> description -"optional"--> add --> select the integration token --> team domain- "any name" --> base url-" webhook base url until /services/"
+    --> generate pipeline script--> 
+
+# Jenkinsfile
+
+node {
+	stage('SCM Checkout'){
+             git 'url'
+	}
+	stage('Compile-Package'){
+	     //get maven home path
+             def mvnHome=tool name: 'maven' , type: 'maven'
+             sh "${mvnHome}/bin/mvn package"
+	}
+	stage('Email Notification'){
+	    mail bcc: '', body: ' "hi welcome to pipeline job declaration" ', cc: '', from: '', replyTo: '', subject: 'jenkins job', to: 'your mail id'
+	}
+	stage('stack-notofication'){
+ 	    slackSend baseUrl: 'url of base ', channel: 'channel name',
+            color: 'good', message: 'message we given', teamDomain: 'domain  name', tokenCredentialId: 'slack-demo'
+	}
+	    	
+}
+
+--> save the file and build the job
+
+
+==========================================================================
